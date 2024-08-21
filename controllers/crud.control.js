@@ -1,9 +1,10 @@
-const CrudProduct = require("../module/crud.modules")
+const OziqOvqat = require("../module/oziq-ovqat")
+const SoldProduct = require("../module/sold-product")
 
 const addProduct = async (req, res) => {
      try {
-          const { rasm, nomi, narxi, soni } = req.body
-          const newProduct = new CrudProduct({ rasm, nomi, narxi, soni, })
+          const { nomi, kelgannarxi, sotishnarxi, soni, barcode } = req.body
+          const newProduct = new OziqOvqat({ nomi, kelgannarxi, sotishnarxi, soni, barcode })
           await newProduct.save();
           res.status(201).json(newProduct)
      } catch (error) {
@@ -13,7 +14,7 @@ const addProduct = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
      try {
-          const products = await CrudProduct.find()
+          const products = await OziqOvqat.find()
           res.status(200).json(products)
      } catch (error) {
           res.status(500).json({ message: "Ошибка при получении продуктов", error })
@@ -24,7 +25,7 @@ const getAllProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
      try {
           const { id } = req.params;
-          const deletedProduct = await CrudProduct.findByIdAndDelete(id);
+          const deletedProduct = await OziqOvqat.findByIdAndDelete(id);
           if (!deletedProduct) {
                return res.status(404).json({ message: "Продукт не найден" });
           }
@@ -37,11 +38,11 @@ const deleteProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
      try {
           const { id } = req.params;
-          const { rasm, nomi, narxi, soni } = req.body;
+          const { nomi, kelgannarxi, sotishnarxi, soni, barcode } = req.body;
 
-          const updatedProduct = await CrudProduct.findByIdAndUpdate(
+          const updatedProduct = await OziqOvqat.findByIdAndUpdate(
                id,
-               { rasm, nomi, narxi, soni },
+               { nomi, kelgannarxi, sotishnarxi, soni, barcode },
                { new: true } // Вернуть обновленный документ
           );
 
@@ -54,4 +55,29 @@ const updateProduct = async (req, res) => {
           res.status(500).json({ message: "Ошибка при обновлении продукта", error });
      }
 };
-module.exports = { addProduct, getAllProduct, deleteProduct, updateProduct }
+
+const sellProduct = async (req, res) => {
+     try {
+          const { nomi, kelgannarxi, sotishnarxi, soni, barcode } = req.body;
+
+          // Создание нового документа в коллекции SoldProduct
+          const newSoldProduct = new SoldProduct({ nomi, kelgannarxi, sotishnarxi, soni, barcode });
+          await newSoldProduct.save();
+
+          res.status(201).json(newSoldProduct);
+     } catch (error) {
+          res.status(500).json({ message: "Ошибка при сохранении проданного товара", error });
+     }
+};
+
+const getSoldItems = async (req, res) => {
+     try {
+          const soldItems = await SoldProduct.find();
+          res.status(200).json(soldItems);
+     } catch (error) {
+          res.status(500).json({ message: "Ошибка при получении проданных товаров", error });
+     }
+};
+
+
+module.exports = { addProduct, getAllProduct, deleteProduct, updateProduct, sellProduct, getSoldItems }
