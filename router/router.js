@@ -1,7 +1,7 @@
 
 const { Router } = require("express")
 const router = Router()
-const { addProduct, getAllProduct, deleteProduct, updateProduct, sellProduct,  getSoldItems } = require("../controllers/crud.control")
+const { addProduct, getAllProduct, deleteProduct, updateProduct, sellProduct, getSoldItems, loginAdmin, checkToken } = require("../controllers/crud.control")
 
 router.post("/add", addProduct)
 router.get("/getall", getAllProduct)
@@ -10,6 +10,8 @@ router.put("/update/:id", updateProduct); // Новый маршрут для о
 
 router.post("/sell", sellProduct);
 router.get("/sold-items", getSoldItems);
+router.post('/login', loginAdmin);
+router.get('/getRole', checkToken);
 
 
 module.exports = router

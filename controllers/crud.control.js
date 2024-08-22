@@ -1,6 +1,6 @@
 const OziqOvqat = require("../module/oziq-ovqat")
 const SoldProduct = require("../module/sold-product")
-
+const jwt = require("jsonwebtoken")
 const addProduct = async (req, res) => {
      try {
           const { nomi, kelgannarxi, sotishnarxi, soni, barcode } = req.body
@@ -78,6 +78,39 @@ const getSoldItems = async (req, res) => {
           res.status(500).json({ message: "Ошибка при получении проданных товаров", error });
      }
 };
+loginAdmin = async (req, res) => {
+     const { login, password } = req.body;
+
+     let role;
+     if (login === 'admin' && password === 'admin') {
+          role = 'admin';
+     } else if (login === 'user' && password === 'user') {
+          role = 'user';
+     } else {
+          return res.status(401).json({ message: 'Login yoki parol noto\'g\'ri' });
+     }
+
+     const secretKey = 'banan';
+     const token = jwt.sign({ role }, secretKey, { expiresIn: '7d' });
+
+     return res.status(200).json({ token });
+};
+
+checkToken = (req, res) => {
+     const token = req.headers.authorization?.split(' ')[1];
+     const secretKey = 'banan';
+
+     if (!token) {
+          return res.status(401).json({ message: 'Token topilmadi' });
+     }
+
+     try {
+          const decoded = jwt.verify(token, secretKey);
+          return res.status(200).json({ role: decoded.role });
+     } catch (err) {
+          return res.status(401).json({ message: 'Token yaroqsiz' });
+     }
+};
 
 
-module.exports = { addProduct, getAllProduct, deleteProduct, updateProduct, sellProduct, getSoldItems }
+module.exports = { addProduct, getAllProduct, deleteProduct, updateProduct, sellProduct, getSoldItems, loginAdmin, checkToken }
